@@ -99,36 +99,8 @@ The path segment `fz` suggests the operator organises payloads by lure brand, wh
 | Defense Evasion | T1564.003 Hide Artifacts: Hidden Window | `CREATE_NO_WINDOW` and `SW_HIDE` |
 | Command and Control | T1105 Ingress Tool Transfer | Remote MSI retrieval |
 
-## Detection
 
-- **YARA:** `npp_mimetools_proxy_downloader.yar`.
-  - `NPP_Plugin_Proxy_MSI_Downloader` is specific to this loader: forwarders, the msiexec format string, the XOR loop bytes and the PDB.
-  - `NPP_Plugin_Export_Forwarding_Generic` is a hunting rule for any Notepad++ plugin that forwards its API.
-  - Both match the sample. Neither matches the genuine `mimeTools.dll`, `NppExport.dll` or `notepad++.exe` 8.4.4.
-- **Sigma:** `sigma_npp_msiexec_remote.yml`.
-  - `notepad++.exe` → `msiexec.exe` with an http(s) URL on the command line (high).
-  - `*_bak.dll` created under a Notepad++ `plugins\` folder (medium).
-- **Endpoint hunting**
-  - Process trees where `notepad++.exe` is the parent of `msiexec.exe`.
-  - `msiexec` command lines containing `/i http` and `/qn`.
-  - MSI installs logged in the Application event log (MsiInstaller, event 1033/11707) shortly after Notepad++ starts.
-  - `plugins\*\*.dll` files that are unsigned while their siblings are signed by Notepad++.
-
-## Recommendations
-
-1. Block `notepad-plusplus[.]org`, `82.221.136[.]52` and `147.45.60[.]44` (and consider the /24).
-2. Hunt for the Sigma behaviour and the YARA rules across endpoints. Check Notepad++ portable copies in user Downloads and Desktop folders.
-3. On any hit, treat the host as compromised by an unknown MSI payload. Collect `C:\Windows\Installer\*.msi` and the MsiInstaller event logs, then re-image.
-4. Allowlist Notepad++ installs from `notepad-plus-plus.org` or GitHub releases only. Consider requiring signed plugins.
-
-## Analyst notes and gaps
-
-- The loader was analysed statically. Dynamic detonation in the CAPE guest was not possible because the guest lacks the VC++ 2015–2022 runtime the DLL imports. It would load on a typical user machine, which normally has that runtime.
-- Stage 3 was unavailable. If the host returns, the tracker will pick up `setup.msi` from the payload queue (`status=unavailable:conn-refused`).
-
-## Indicators (defanged)
-
-See `iocs.csv` for the machine-readable list.
+## Indicators 
 
 | Type | Indicator | Stage |
 |---|---|---|
