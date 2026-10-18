@@ -1,7 +1,5 @@
  Trojanised Notepad++ portable delivers silent MSI payload via proxied plugin
 
-**TLP:CLEAR** · Campaign Tracker · 2026-10-18 · Analyst confidence: **High** (loader), **Low** (stage-3 family, not recovered)
-
 ## Executive summary
 
 A typosquatted clone of the official Notepad++ website, `notepad-plusplus[.]org` (official: `notepad-plus-plus.org`), hosts a ZIP file of the genuine, signed Notepad++ 8.4.4 portable build. The operator altered exactly one component. The legitimate `mimeTools` plugin was renamed to `mimeTools_bak.dll`, and a small malicious DLL was placed under its original name. Notepad++ loads every plugin at start-up. The malicious DLL forwards all plugin functions to the renamed original, so the editor works normally. At the same time it silently starts `msiexec.exe` to download and install a remote MSI package from `hxxp://147.45.60[.]44/files/fz/setup[.]msi`. The routine repeats every time the victim opens Notepad++.
